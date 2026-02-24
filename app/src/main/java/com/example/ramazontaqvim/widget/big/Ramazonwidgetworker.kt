@@ -1,15 +1,10 @@
-package com.example.ramazontaqvim.widget
+package com.example.ramazontaqvim.widget.big
 
 import android.content.Context
 import androidx.glance.appwidget.updateAll
 import androidx.work.*
 import java.util.concurrent.TimeUnit
 
-// ════════════════════════════════════════════════════════════════════
-//  WORKER — har 15 daqiqada widget yangilanadi
-//  (Android minimal 15 daqiqa qo'yadi WorkManager uchun)
-//  Countdown uchun AlarmManager ishlatiladi
-// ════════════════════════════════════════════════════════════════════
 class RamazonWidgetWorker(
     private val context: Context,
     workerParams: WorkerParameters

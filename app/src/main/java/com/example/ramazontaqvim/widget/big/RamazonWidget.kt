@@ -1,4 +1,4 @@
-package com.example.ramazontaqvim.widget
+package com.example.ramazontaqvim.widget.big
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -15,11 +15,10 @@ import androidx.glance.layout.*
 import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
 import com.example.ramazontaqvim.MainActivity
+import com.example.ramazontaqvim.widget.RamazonPhase
+import com.example.ramazontaqvim.widget.WidgetState
+import com.example.ramazontaqvim.widget.calculateWidgetState
 
-
-// ════════════════════════════════════════════════════════════════════
-//  COLOR PALETTE
-// ════════════════════════════════════════════════════════════════════
 private val NightDeep = Color(0xFF080B14)
 private val GoldPrimary = Color(0xFFD4AF37)
 private val GoldLight = Color(0xFFF5D76E)

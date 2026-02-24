@@ -3,10 +3,10 @@ package com.example.ramazontaqvim.widget
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.Duration
 
 // ── Data ────────────────────────────────────────────────────────────
 data class RamazonKun(

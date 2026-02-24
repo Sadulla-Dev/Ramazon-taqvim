@@ -11,8 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RamazonTaqvim">
+
         <receiver
-            android:name=".widget.RamazonWidgetReceiver"
+            android:name=".widget.big.RamazonWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -23,10 +24,29 @@
         </receiver>
 
         <receiver
-            android:name=".widget.RamazonWidgetUpdateReceiver"
+            android:name=".widget.big.RamazonWidgetUpdateReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.ramazon.widget.UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".widget.small.SmallRamazonWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/small_ramazon_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.small.SmallWidgetAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.ramazon.widget.SMALL_UPDATE" />
             </intent-filter>
         </receiver>
 
@@ -37,10 +57,10 @@
             android:theme="@style/Theme.RamazonTaqvim">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

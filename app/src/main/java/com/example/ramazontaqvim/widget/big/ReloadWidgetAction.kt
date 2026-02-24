@@ -1,4 +1,4 @@
-package com.example.ramazontaqvim.widget
+package com.example.ramazontaqvim.widget.big
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -11,6 +11,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import com.example.ramazontaqvim.widget.calculateWidgetState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
