@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Ramazon taqvim</string>
     <string name="widget_description">Ramazon 2026 - Sahar va Iftor vaqtlari</string>
+    <string name="circle_widget_description">Ramazon doira widget</string>
 </resources>

@@ -1,9 +1,6 @@
-package com.example.ramazontaqvim
+package com.example.ramazontaqvim.widget
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.*
@@ -12,14 +9,12 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.*
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.components.Scaffold
-import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.*
 import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
-import com.example.ramazontaqvim.screen.DuoType
+import com.example.ramazontaqvim.MainActivity
 
 
 // ════════════════════════════════════════════════════════════════════
@@ -34,47 +29,31 @@ private val GoldAlpha10 = Color(0x1AD4AF37)
 private val WhiteFaded = Color(0xCCFFFFFF)
 private val WhiteDim = Color(0x66FFFFFF)
 
-// ════════════════════════════════════════════════════════════════════
-//  RECEIVER
-//  onEnabled  → AlarmManager boshlanadi (har 30 sek yangilaydi)
-//  onDisabled → AlarmManager to'xtatiladi (batareya tejash)
-// ════════════════════════════════════════════════════════════════════
 class RamazonWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = RamazonGlanceWidget()
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        // Birinchi widget qo'shilganda alarm ishga tushadi
         RamazonWidgetUpdateReceiver.start(context)
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        // Oxirgi widget o'chirilganda alarm to'xtatiladi
         RamazonWidgetUpdateReceiver.stop(context)
     }
 }
 
-// ════════════════════════════════════════════════════════════════════
-//  GLANCE WIDGET
-// ════════════════════════════════════════════════════════════════════
 class RamazonGlanceWidget(private val state: WidgetState? = null) : GlanceAppWidget() {
 
     override val sizeMode = SizeMode.Responsive(
         setOf(
-            DpSize(200.dp, 100.dp),   // small  2×1
-            DpSize(300.dp, 150.dp),   // medium 4×1
-            DpSize(360.dp, 220.dp),   // large  4×2
+            DpSize(360.dp, 220.dp),
         )
     )
-
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent { Content(state = state ?: calculateWidgetState()) }
     }
 
-    suspend fun provideGlance(context: Context, id: GlanceId, state: WidgetState) {
-        provideContent { Content(state = state) }
-    }
 
     @Composable
     private fun Content(state: WidgetState) {
@@ -172,6 +151,7 @@ private fun LargeWidget(state: WidgetState) {
                         RamazonPhase.SAHAR_WAIT -> "SAHARLIKGACHA"
                         RamazonPhase.ROZA -> "IFTORGACHA"
                         RamazonPhase.IFTOR_DONE -> "IFTOR O'TDI"
+                        RamazonPhase.SAHAR_DONE -> "SAHAR O'TDI"
                     },
                     style = TextStyle(color = ColorProvider(WhiteDim), fontSize = 10.sp)
                 )

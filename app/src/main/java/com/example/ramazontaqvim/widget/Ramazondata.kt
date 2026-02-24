@@ -1,4 +1,4 @@
-package com.example.ramazontaqvim
+package com.example.ramazontaqvim.widget
 
 
 import android.os.Build
@@ -51,77 +51,117 @@ val RAMAZON_2026 = listOf(
 )
 
 // ── Widget State ─────────────────────────────────────────────────────
-enum class RamazonPhase { SAHAR_WAIT, ROZA, IFTOR_DONE }
-
+enum class RamazonPhase {
+    SAHAR_WAIT,   // sahargacha
+    SAHAR_DONE,   // sahar bo‘ldi, ro'za boshlandi
+    ROZA,         // iftorgacha
+    IFTOR_DONE    // iftor bo‘ldi, keyingi sahargacha
+}
 data class WidgetState(
     val kun: Int,
     val saharTime: String,
     val iftorTime: String,
     val phase: RamazonPhase,
-    val countdownText: String,       // "08:43:21"
-    val progressPercent: Int,        // 0..100
+    val countdownText: String,
+    val progressPercent: Int,
     val showDuo: Boolean,
-    val duoForIftor: Boolean,        // true=iftor duo, false=sahar duo
+    val duoForIftor: Boolean,
     val isRamazon: Boolean
 )
 
 // ── State Calculator ─────────────────────────────────────────────────
 @RequiresApi(Build.VERSION_CODES.O)
 fun calculateWidgetState(now: LocalDateTime = LocalDateTime.now()): WidgetState {
+
     val today = now.toLocalDate()
-    val data = RAMAZON_2026.find { it.sana == today } ?: RAMAZON_2026.first()
-    val isRamazon = RAMAZON_2026.any { it.sana == today }
+
+    val todayData = RAMAZON_2026.find { it.sana == today }
+    val tomorrowData = RAMAZON_2026.find { it.sana == today.plusDays(1) }
+
+    val isRamazon = todayData != null
+
+    val data = todayData ?: RAMAZON_2026.first()
 
     val saharDt = LocalDateTime.of(data.sana, data.sahar)
     val iftorDt = LocalDateTime.of(data.sana, data.iftor)
 
-    val msSahar = Duration.between(now, saharDt).toMillis()
-    val msIftor = Duration.between(now, iftorDt).toMillis()
+    val phase: RamazonPhase
+    val targetTime: LocalDateTime
 
-    val phase = when {
-        msSahar > 0 -> RamazonPhase.SAHAR_WAIT
-        msIftor > 0 -> RamazonPhase.ROZA
-        else        -> RamazonPhase.IFTOR_DONE
+    when {
+        now.isBefore(saharDt) -> {
+            phase = RamazonPhase.SAHAR_WAIT
+            targetTime = saharDt
+        }
+
+        now.isAfter(saharDt) && now.isBefore(iftorDt) -> {
+            phase = RamazonPhase.ROZA
+            targetTime = iftorDt
+        }
+
+        else -> {
+            phase = RamazonPhase.IFTOR_DONE
+
+            val nextSahar = tomorrowData?.let {
+                LocalDateTime.of(it.sana, it.sahar)
+            } ?: saharDt.plusDays(1)
+
+            targetTime = nextSahar
+        }
     }
 
-    val countdownMs = when (phase) {
-        RamazonPhase.SAHAR_WAIT -> msSahar
-        RamazonPhase.ROZA       -> msIftor
-        RamazonPhase.IFTOR_DONE -> 0L
-    }
+    val countdownMs = Duration.between(now, targetTime).toMillis()
 
     val progress = when (phase) {
+
         RamazonPhase.SAHAR_WAIT -> {
-            val total = Duration.between(LocalDateTime.of(data.sana, LocalTime.MIDNIGHT), saharDt).toMillis()
-            val elapsed = Duration.between(LocalDateTime.of(data.sana, LocalTime.MIDNIGHT), now).toMillis()
+            val total = Duration.between(
+                LocalDateTime.of(data.sana, LocalTime.MIDNIGHT),
+                saharDt
+            ).toMillis()
+
+            val elapsed = Duration.between(
+                LocalDateTime.of(data.sana, LocalTime.MIDNIGHT),
+                now
+            ).toMillis()
+
             ((elapsed.toFloat() / total) * 100).toInt().coerceIn(0, 100)
         }
+
         RamazonPhase.ROZA -> {
             val total = Duration.between(saharDt, iftorDt).toMillis()
             val elapsed = Duration.between(saharDt, now).toMillis()
+
             ((elapsed.toFloat() / total) * 100).toInt().coerceIn(0, 100)
         }
-        RamazonPhase.IFTOR_DONE -> 100
-    }
 
-    val showDuo = (phase == RamazonPhase.SAHAR_WAIT && msSahar <= 3_600_000) ||
-            (phase == RamazonPhase.ROZA && msIftor <= 3_600_000)
+        RamazonPhase.IFTOR_DONE -> {
+            val total = Duration.between(iftorDt, targetTime).toMillis()
+            val elapsed = Duration.between(iftorDt, now).toMillis()
+
+            ((elapsed.toFloat() / total) * 100).toInt().coerceIn(0, 100)
+        }
+
+        RamazonPhase.SAHAR_DONE -> 100
+    }
 
     fun fmt(ms: Long): String {
         val s = ms / 1000
         return "%02d:%02d".format(s / 3600, (s % 3600) / 60)
     }
-    fun fmtTime(t: LocalTime) = "%02d:%02d".format(t.hour, t.minute)
+
+    fun fmtTime(t: LocalTime) =
+        "%02d:%02d".format(t.hour, t.minute)
 
     return WidgetState(
-        kun            = data.kun,
-        saharTime      = fmtTime(data.sahar),
-        iftorTime      = fmtTime(data.iftor),
-        phase          = phase,
-        countdownText  = if (phase == RamazonPhase.IFTOR_DONE) "✓" else fmt(countdownMs),
+        kun = data.kun,
+        saharTime = fmtTime(data.sahar),
+        iftorTime = fmtTime(data.iftor),
+        phase = phase,
+        countdownText = fmt(countdownMs),
         progressPercent = progress,
-        showDuo        = showDuo,
-        duoForIftor    = phase == RamazonPhase.ROZA,
-        isRamazon      = isRamazon
+        showDuo = countdownMs <= 3_600_000,
+        duoForIftor = phase == RamazonPhase.ROZA,
+        isRamazon = isRamazon
     )
 }

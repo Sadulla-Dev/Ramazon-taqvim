@@ -1,46 +1,38 @@
 package com.example.ramazontaqvim.screen
 
-import androidx.compose.runtime.Composable
-
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
-import com.example.ramazontaqvim.RAMAZON_2026
-import kotlinx.coroutines.delay
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.ramazontaqvim.widget.RAMAZON_2026
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RamazonTable(today: LocalDate) {
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Color.White.copy(0.03f),
-            )
+            .background(Color.White.copy(0.03f))
+            .heightIn(max = 1900.dp)
             .padding(horizontal = 12.dp)
     ) {
-
-        RAMAZON_2026.forEach { day ->
+        itemsIndexed(RAMAZON_2026) { index, day ->
 
             val isToday = day.sana == today
 
@@ -55,7 +47,6 @@ fun RamazonTable(today: LocalDate) {
                     .padding(horizontal = 8.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 Text(
                     text = "${day.kun}-kun",
                     color = if (isToday) GoldPrimary else WhiteFaded,
@@ -77,6 +68,7 @@ fun RamazonTable(today: LocalDate) {
                     fontSize = 11.sp
                 )
             }
+
         }
     }
 }

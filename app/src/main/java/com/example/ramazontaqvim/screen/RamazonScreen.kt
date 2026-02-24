@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
-import com.example.ramazontaqvim.RAMAZON_2026
+import com.example.ramazontaqvim.widget.RAMAZON_2026
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -96,17 +96,22 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
         else -> DuoType.SAHAR
     }
 
+    val tomorrowData = RAMAZON_2026.find { it.sana == today.plusDays(1) }
+    val nextSaharDt = tomorrowData?.let {
+        LocalDateTime.of(it.sana, it.sahar)
+    } ?: saharDt.plusDays(1)
 
     val phase = when {
-        msSahar > 0       -> Phase.SAHAR_WAIT
-        msIftor > 0       -> Phase.ROZA
-        else              -> Phase.AFTER_IFTOR
+        now.isBefore(saharDt) -> Phase.SAHAR_WAIT
+        now.isBefore(iftorDt) -> Phase.ROZA
+        else -> Phase.AFTER_IFTOR
     }
 
     val countdown = when (phase) {
         Phase.SAHAR_WAIT  -> msSahar
         Phase.ROZA        -> msIftor
-        Phase.AFTER_IFTOR -> 0L
+        Phase.AFTER_IFTOR ->
+            java.time.Duration.between(now, nextSaharDt).toMillis()
     }
 
     val progress = when (phase) {
@@ -177,7 +182,7 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
                     text = when (phase) {
                         Phase.SAHAR_WAIT  -> "SAHARLIKGACHA"
                         Phase.ROZA        -> "IFTORGACHA"
-                        Phase.AFTER_IFTOR -> "IFTOR O'TDI"
+                        Phase.AFTER_IFTOR -> "SAHARLIKGACHA"
                     },
                     color = WhiteDim,
                     fontSize = 11.sp,
@@ -189,7 +194,6 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
 
                 CountdownDisplay(
                     millis = countdown,
-                    phase = phase
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -253,15 +257,30 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
             AnimatedVisibility(
                 visible = isTableExpanded,
                 enter = expandVertically(
-                    animationSpec = tween(600, easing = EaseOutCubic)
-                ) + fadeIn(),
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = LinearOutSlowInEasing
+                    )
+                ),
                 exit = shrinkVertically(
-                    animationSpec = tween(400)
-                ) + fadeOut()
+                    animationSpec = tween(
+                        durationMillis = 400,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = 400,
+                        easing = LinearOutSlowInEasing
+                    )
+                )
             ) {
                 RamazonTable(today = today)
             }
-
         }
     }
 }
@@ -346,29 +365,20 @@ private fun WidgetHeader(kun: Int) {
         }
     }
 }
-
 @Composable
-private fun CountdownDisplay(millis: Long, phase: Phase) {
-    if (phase == Phase.AFTER_IFTOR) {
-        Text(
-            text = "✓ BARAKALLA",
-            color = GoldPrimary,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 4.sp
-        )
-        return
-    }
+private fun CountdownDisplay(millis: Long) {
 
-    val (h, m, s) = millis.toHms()
+    val (h, m, s) = millis.coerceAtLeast(0).toHms()
 
     val infiniteAnim = rememberInfiniteTransition(label = "glow")
     val glowAlpha by infiniteAnim.animateFloat(
-        initialValue = 0.3f, targetValue = 1f,
+        initialValue = 0.3f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
             tween(1200, easing = EaseInOutSine),
             RepeatMode.Reverse
-        ), label = "glow"
+        ),
+        label = "glow"
     )
 
     Row(

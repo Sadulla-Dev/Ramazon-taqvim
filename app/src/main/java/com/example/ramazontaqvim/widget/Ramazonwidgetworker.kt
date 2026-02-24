@@ -1,4 +1,4 @@
-package com.example.ramazontaqvim
+package com.example.ramazontaqvim.widget
 
 import android.content.Context
 import androidx.glance.appwidget.updateAll

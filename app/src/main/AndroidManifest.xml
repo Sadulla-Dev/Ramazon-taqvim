@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RamazonTaqvim">
         <receiver
-            android:name=".RamazonWidgetReceiver"
+            android:name=".widget.RamazonWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -21,8 +21,9 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/ramazon_widget_info" />
         </receiver>
+
         <receiver
-            android:name=".RamazonWidgetUpdateReceiver"
+            android:name=".widget.RamazonWidgetUpdateReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.ramazon.widget.UPDATE_WIDGET" />

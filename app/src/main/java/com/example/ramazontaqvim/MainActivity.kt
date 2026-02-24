@@ -23,6 +23,7 @@ import androidx.core.view.WindowCompat
 import com.example.ramazontaqvim.screen.NightDeep
 import com.example.ramazontaqvim.screen.RamazonScreen
 import com.example.ramazontaqvim.ui.theme.RamazonTaqvimTheme
+import com.example.ramazontaqvim.widget.RamazonWidgetWorker
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
