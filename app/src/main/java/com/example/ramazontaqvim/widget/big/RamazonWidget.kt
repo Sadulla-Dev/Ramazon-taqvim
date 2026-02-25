@@ -9,24 +9,20 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.*
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.provideContent
-import androidx.glance.background
 import androidx.glance.layout.*
 import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
 import com.example.ramazontaqvim.MainActivity
+import com.example.ramazontaqvim.ui.theme.GoldAlpha10
+import com.example.ramazontaqvim.ui.theme.GoldAlpha20
+import com.example.ramazontaqvim.ui.theme.GoldDim
+import com.example.ramazontaqvim.ui.theme.GoldPrimary
+import com.example.ramazontaqvim.ui.theme.NightDeep
+import com.example.ramazontaqvim.ui.theme.WhiteDim
+import com.example.ramazontaqvim.ui.theme.WhiteFaded
 import com.example.ramazontaqvim.widget.RamazonPhase
 import com.example.ramazontaqvim.widget.WidgetState
 import com.example.ramazontaqvim.widget.calculateWidgetState
-
-private val NightDeep = Color(0xFF080B14)
-private val GoldPrimary = Color(0xFFD4AF37)
-private val GoldLight = Color(0xFFF5D76E)
-private val GoldDim = Color(0xFF8B6914)
-private val GoldAlpha20 = Color(0x33D4AF37)
-private val GoldAlpha10 = Color(0x1AD4AF37)
-private val WhiteFaded = Color(0xCCFFFFFF)
-private val WhiteDim = Color(0x66FFFFFF)
 
 class RamazonWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = RamazonGlanceWidget()
@@ -49,6 +45,7 @@ class RamazonGlanceWidget(private val state: WidgetState? = null) : GlanceAppWid
             DpSize(360.dp, 220.dp),
         )
     )
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent { Content(state = state ?: calculateWidgetState()) }
     }
@@ -65,7 +62,7 @@ class RamazonGlanceWidget(private val state: WidgetState? = null) : GlanceAppWid
 private fun LargeWidget(state: WidgetState) {
     Box(
         modifier = GlanceModifier
-            .fillMaxSize()  .clickable(
+            .fillMaxSize().clickable(
                 actionStartActivity<MainActivity>()
             )
             .background(NightDeep)

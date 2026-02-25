@@ -3,30 +3,25 @@ package com.example.ramazontaqvim.widget.small
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.glance.*
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.*
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.provideContent
-import androidx.glance.background
 import androidx.glance.layout.*
 import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
 import com.example.ramazontaqvim.MainActivity
+import com.example.ramazontaqvim.ui.theme.GoldAlpha10
+import com.example.ramazontaqvim.ui.theme.GoldAlpha20
+import com.example.ramazontaqvim.ui.theme.GoldPrimary
+import com.example.ramazontaqvim.ui.theme.NightDeep
+import com.example.ramazontaqvim.ui.theme.WhiteDim
+import com.example.ramazontaqvim.ui.theme.WhiteFaded
 import com.example.ramazontaqvim.widget.RamazonPhase
 import com.example.ramazontaqvim.widget.WidgetState
 import com.example.ramazontaqvim.widget.calculateWidgetState
-
-private val NightDeep = Color(0xFF080B14)
-private val GoldPrimary = Color(0xFFD4AF37)
-private val GoldDim = Color(0xFF8B6914)
-private val GoldAlpha20 = Color(0x33D4AF37)
-private val GoldAlpha10 = Color(0x1AD4AF37)
-private val WhiteFaded = Color(0xCCFFFFFF)
-private val WhiteDim = Color(0x66FFFFFF)
 
 class SmallRamazonWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SmallRamazonGlanceWidget()

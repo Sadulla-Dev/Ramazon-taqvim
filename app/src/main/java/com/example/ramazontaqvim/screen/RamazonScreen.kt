@@ -18,28 +18,21 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import com.example.ramazontaqvim.ui.theme.GoldAlpha12
+import com.example.ramazontaqvim.ui.theme.GoldAlpha30
+import com.example.ramazontaqvim.ui.theme.GoldDim
+import com.example.ramazontaqvim.ui.theme.GoldLight
+import com.example.ramazontaqvim.ui.theme.GoldPrimary
+import com.example.ramazontaqvim.ui.theme.NightDeep
+import com.example.ramazontaqvim.ui.theme.NightMid
+import com.example.ramazontaqvim.ui.theme.WhiteDim
+import com.example.ramazontaqvim.ui.theme.WhiteFaded
 import com.example.ramazontaqvim.widget.RAMAZON_2026
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-
-val NightDeep    = Color(0xFF080B14)
-val NightMid     = Color(0xFF0D1526)
-val NightSurface = Color(0xFF121C35)
-val GoldPrimary  = Color(0xFFD4AF37)
-val GoldLight    = Color(0xFFF5D76E)
-val GoldDim      = Color(0xFF8B6914)
-val GoldAlpha12  = Color(0x1FD4AF37)
-val GoldAlpha30  = Color(0x4DD4AF37)
-val WhiteFaded   = Color(0xCCFFFFFF)
-val WhiteDim     = Color(0x66FFFFFF)
-val EmeraldGlow  = Color(0xFF1A6B3C)
-
-// ════════════════════════════════════════
-//  HELPERS
-// ════════════════════════════════════════
 
 fun Long.toHms(): Triple<Long, Long, Long> {
     val s = this / 1000
@@ -49,9 +42,6 @@ fun Long.toHms(): Triple<Long, Long, Long> {
 fun Triple<Long, Long, Long>.format() =
     "%02d:%02d:%02d".format(first, second, third)
 
-// ════════════════════════════════════════
-//  MAIN WIDGET
-// ════════════════════════════════════════
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

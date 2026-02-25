@@ -18,6 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ramazontaqvim.ui.theme.GoldAlpha12
+import com.example.ramazontaqvim.ui.theme.GoldPrimary
+import com.example.ramazontaqvim.ui.theme.WhiteDim
+import com.example.ramazontaqvim.ui.theme.WhiteFaded
 import com.example.ramazontaqvim.widget.RAMAZON_2026
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
