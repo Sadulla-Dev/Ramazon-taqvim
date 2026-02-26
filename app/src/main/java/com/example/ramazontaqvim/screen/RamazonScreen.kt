@@ -2,22 +2,57 @@ package com.example.ramazontaqvim.screen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOutSine
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ramazontaqvim.ui.theme.GoldAlpha12
 import com.example.ramazontaqvim.ui.theme.GoldAlpha30
 import com.example.ramazontaqvim.ui.theme.GoldDim
@@ -98,8 +133,8 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
     }
 
     val countdown = when (phase) {
-        Phase.SAHAR_WAIT  -> msSahar
-        Phase.ROZA        -> msIftor
+        Phase.SAHAR_WAIT -> msSahar
+        Phase.ROZA -> msIftor
         Phase.AFTER_IFTOR ->
             java.time.Duration.between(now, nextSaharDt).toMillis()
     }
@@ -114,11 +149,13 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
             ).toMillis().toFloat()
             (elapsed / total).coerceIn(0f, 1f)
         }
+
         Phase.ROZA -> {
             val total = java.time.Duration.between(saharDt, iftorDt).toMillis().toFloat()
             val elapsed = java.time.Duration.between(saharDt, now).toMillis().toFloat()
             (elapsed / total).coerceIn(0f, 1f)
         }
+
         Phase.AFTER_IFTOR -> 1f
     }
 
@@ -141,135 +178,139 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(28.dp))
             .padding(0.dp)
     ) {
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-
-            // ── Header ──────────────────────────────
-            WidgetHeader(kun = data.kun)
-
-            // ── Body ────────────────────────────────
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                AnimatedContent(
-                    targetState = duoType,
-                    transitionSpec = {
-                        fadeIn(tween(400)) togetherWith fadeOut(tween(400))
-                    },
-                    label = "duoSwitch"
-                ) { type ->
-                    DuoCard(
-                        type = type,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                Text(
-                    text = when (phase) {
-                        Phase.SAHAR_WAIT  -> "SAHARLIKGACHA"
-                        Phase.ROZA        -> "IFTORGACHA"
-                        Phase.AFTER_IFTOR -> "SAHARLIKGACHA"
-                    },
-                    color = WhiteDim,
-                    fontSize = 11.sp,
-                    letterSpacing = 4.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                CountdownDisplay(
-                    millis = countdown,
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                // Progress arc + bar
-                ProgressSection(progress = progress, phase = phase)
-
-                Spacer(Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            item { Header(kun = data.kun) }
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val saharEnd = saharDt.plusHours(1)
 
-                    TimeCard(
-                        icon = "☀️",
-                        label = "SAHARLIK",
-                        time = data.sahar.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        isActive = nowForDUO.isBefore(saharEnd), // sahar + 1h gacha active
-                        modifier = Modifier.weight(1f)
+                    AnimatedContent(
+                        targetState = duoType,
+                        transitionSpec = {
+                            fadeIn(tween(400)) togetherWith fadeOut(tween(400))
+                        },
+                        label = "duoSwitch"
+                    ) { type ->
+                        DuoCard(
+                            type = type,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+
+                    Text(
+                        text = when (phase) {
+                            Phase.SAHAR_WAIT -> "SAHARLIKGACHA"
+                            Phase.ROZA -> "IFTORGACHA"
+                            Phase.AFTER_IFTOR -> "SAHARLIKGACHA"
+                        },
+                        color = WhiteDim,
+                        fontSize = 11.sp,
+                        letterSpacing = 4.sp,
+                        fontWeight = FontWeight.Medium
                     )
 
-                    TimeCard(
-                        icon = "\uD83C\uDF19",
-                        label = "IFTOR",
-                        time = data.iftor.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        isActive = nowForDUO.isAfter(saharEnd) && nowForDUO.isBefore(iftorDt),
-                        modifier = Modifier.weight(1f)
+                    Spacer(Modifier.height(8.dp))
+
+                    CountdownDisplay(
+                        millis = countdown,
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Progress arc + bar
+                    ProgressSection(progress = progress, phase = phase)
+
+                    Spacer(Modifier.height(20.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        val saharEnd = saharDt.plusHours(1)
+
+                        TimeCard(
+                            icon = "☀️",
+                            label = "SAHARLIK",
+                            time = data.sahar.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            isActive = nowForDUO.isBefore(saharEnd), // sahar + 1h gacha active
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        TimeCard(
+                            icon = "\uD83C\uDF19",
+                            label = "IFTOR",
+                            time = data.iftor.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            isActive = nowForDUO.isAfter(saharEnd) && nowForDUO.isBefore(iftorDt),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+
+                    // Demo notice
+                    if (isDemo) {
+                        Spacer(Modifier.height(12.dp))
+                        DemoNotice()
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topEnd = 14.dp, topStart = 14.dp))
+                        .background(Color.White.copy(0.03f))
+                        .clickable { isTableExpanded = !isTableExpanded }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (isTableExpanded) "▲ Ramazon jadvalini yopish"
+                        else "▼ Barcha Ramazon kunlari",
+                        color = GoldPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
+            }
 
-
-                // Demo notice
-                if (isDemo) {
-                    Spacer(Modifier.height(12.dp))
-                    DemoNotice()
+            // Jadvalni qo'shish
+            item {
+                AnimatedVisibility(
+                    visible = isTableExpanded,
+                    enter = expandVertically(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = LinearOutSlowInEasing
+                        )
+                    ),
+                    exit = shrinkVertically(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = LinearOutSlowInEasing
+                        )
+                    )
+                ) {
+                    RamazonTable(today = today)
                 }
-
-                Spacer(Modifier.height(8.dp))
-            }
-            Spacer(Modifier.height(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topEnd = 14.dp,topStart = 14.dp))
-                    .background(Color.White.copy(0.03f))
-                    .clickable { isTableExpanded = !isTableExpanded }
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (isTableExpanded) "▲ Ramazon jadvalini yopish"
-                    else "▼ Barcha Ramazon kunlari",
-                    color = GoldPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            AnimatedVisibility(
-                visible = isTableExpanded,
-                enter = expandVertically(
-                    animationSpec = tween(
-                        durationMillis = 500,
-                        easing = FastOutSlowInEasing
-                    )
-                ) + fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 500,
-                        easing = LinearOutSlowInEasing
-                    )
-                ),
-                exit = shrinkVertically(
-                    animationSpec = tween(
-                        durationMillis = 400,
-                        easing = FastOutSlowInEasing
-                    )
-                ) + fadeOut(
-                    animationSpec = tween(
-                        durationMillis = 400,
-                        easing = LinearOutSlowInEasing
-                    )
-                )
-            ) {
-                RamazonTable(today = today)
             }
         }
     }
@@ -280,7 +321,7 @@ enum class DuoType { SAHAR, IFTOR }
 
 
 @Composable
-private fun WidgetHeader(kun: Int) {
+private fun Header(kun: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -355,6 +396,7 @@ private fun WidgetHeader(kun: Int) {
         }
     }
 }
+
 @Composable
 private fun CountdownDisplay(millis: Long) {
 
@@ -427,8 +469,8 @@ private fun ProgressSection(progress: Float, phase: Phase) {
         ) {
             Text(
                 text = when (phase) {
-                    Phase.SAHAR_WAIT  -> "Tun"
-                    Phase.ROZA        -> "Ro'za"
+                    Phase.SAHAR_WAIT -> "Tun"
+                    Phase.ROZA -> "Ro'za"
                     Phase.AFTER_IFTOR -> "Tugadi"
                 },
                 color = WhiteDim,
@@ -523,14 +565,15 @@ private fun TimeCard(
 
 @Composable
 private fun DuoCard(type: DuoType, modifier: Modifier = Modifier) {
-    val arabic = "اَللّٰهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلٰى رِزْقِكَ اَفْطَرْتُ"
+    val arabic =
+        "اَللّٰهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلٰى رِزْقِكَ اَفْطَرْتُ"
     val uzbek = when (type) {
-        DuoType.SAHAR  -> "Navvaytu an asuma sovma shahri romazona minal fajri ilal mag‘ribi, xolisan lillahi ta’ala. Allohu Akbar!"
-        DuoType.IFTOR  -> "Allohumma laka sumtu va bika amantu va ‘alayka tavakkaltu va ‘ala rizqika aftartu, fag‘firli ya g‘offaruma qoddamtu va ma axxortu"
+        DuoType.SAHAR -> "Navvaytu an asuma sovma shahri romazona minal fajri ilal mag‘ribi, xolisan lillahi ta’ala. Allohu Akbar!"
+        DuoType.IFTOR -> "Allohumma laka sumtu va bika amantu va ‘alayka tavakkaltu va ‘ala rizqika aftartu, fag‘firli ya g‘offaruma qoddamtu va ma axxortu"
     }
     val title = when (type) {
-        DuoType.SAHAR  -> "⚡ Saharlik duosi"
-        DuoType.IFTOR  -> "⚡ Og'iz ochish duosi"
+        DuoType.SAHAR -> "⚡ Saharlik duosi"
+        DuoType.IFTOR -> "⚡ Og'iz ochish duosi"
     }
 
     Box(

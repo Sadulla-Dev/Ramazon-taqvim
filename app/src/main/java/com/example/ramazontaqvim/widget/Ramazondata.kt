@@ -7,6 +7,8 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.TextStyle
+import java.util.Locale
 
 // ── Data ────────────────────────────────────────────────────────────
 data class RamazonKun(
@@ -14,7 +16,11 @@ data class RamazonKun(
     val sana: LocalDate,
     val sahar: LocalTime,
     val iftor: LocalTime
-)
+){
+    val haftaKuni: String
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = sana.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("uz", "UZ"))
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 val RAMAZON_2026 = listOf(
