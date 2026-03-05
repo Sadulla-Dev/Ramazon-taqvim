@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.example.ramazontaqvim.screen.RamazonScreen
+import com.example.ramazontaqvim.screen.SwipeableRamazonPager
 import com.example.ramazontaqvim.ui.theme.NightDeep
 import com.example.ramazontaqvim.ui.theme.RamazonTaqvimTheme
 import com.example.ramazontaqvim.widget.big.RamazonWidgetWorker
@@ -46,8 +47,8 @@ fun RamazonApp() {
             .background(NightDeep)
             .systemBarsPadding()
     ) {
-        RamazonScreen(
-            modifier = Modifier.align(Alignment.Center).fillMaxWidth().padding(16.dp)
+        SwipeableRamazonPager(
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

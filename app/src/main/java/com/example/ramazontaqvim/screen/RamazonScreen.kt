@@ -102,22 +102,13 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
     val msSahar = java.time.Duration.between(now, saharDt).toMillis()
     val msIftor = java.time.Duration.between(now, iftorDt).toMillis()
 
-    val mockSahar = LocalTime.of(5, 30)
-    val mockIftor = LocalTime.of(19, 0)
+    val saharDtPlus2h = saharDt.plusHours(2)
+    val iftorDtPlus2h = iftorDt.plusHours(2)
 
-    var nowForDUO by remember { mutableStateOf(LocalDateTime.now()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            nowForDUO
-            delay(1000)
-        }
-    }
-
-    val saharPlus1h = LocalDateTime.of(today, mockSahar).plusHours(2)
     val duoType = when {
-        nowForDUO.isBefore(saharPlus1h) -> DuoType.SAHAR
-        nowForDUO.isBefore(LocalDateTime.of(today, mockIftor)) -> DuoType.IFTOR
+        now.isBefore(saharDtPlus2h) -> DuoType.SAHAR
+        now.isBefore(iftorDt) -> DuoType.IFTOR
+        now.isBefore(iftorDtPlus2h) -> DuoType.IFTOR
         else -> DuoType.SAHAR
     }
 
@@ -132,11 +123,25 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
         else -> Phase.AFTER_IFTOR
     }
 
-    val countdown = when (phase) {
-        Phase.SAHAR_WAIT -> msSahar
-        Phase.ROZA -> msIftor
-        Phase.AFTER_IFTOR ->
-            java.time.Duration.between(now, nextSaharDt).toMillis()
+
+    val isWithinSaharWindow = phase == Phase.ROZA && now.isBefore(saharDtPlus2h)
+    val isWithinIftorWindow = phase == Phase.AFTER_IFTOR && now.isBefore(iftorDtPlus2h)
+
+    val countdownLabel = when {
+        phase == Phase.SAHAR_WAIT -> "SAHARLIKGACHA"
+        isWithinSaharWindow -> "SAHARLIKDAN O'TDI"
+        phase == Phase.ROZA -> "IFTORGACHA"
+        isWithinIftorWindow -> "IFTORLIKDAN O'TDI"
+        else -> "SAHARLIKGACHA"
+    }
+
+
+    val countdown = when {
+        phase == Phase.SAHAR_WAIT -> msSahar
+        isWithinSaharWindow -> java.time.Duration.between(saharDt, now).toMillis()
+        phase == Phase.ROZA -> msIftor
+        isWithinIftorWindow -> java.time.Duration.between(iftorDt, now).toMillis()
+        else -> java.time.Duration.between(now, nextSaharDt).toMillis()
     }
 
     val progress = when (phase) {
@@ -204,11 +209,7 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
                     }
 
                     Text(
-                        text = when (phase) {
-                            Phase.SAHAR_WAIT -> "SAHARLIKGACHA"
-                            Phase.ROZA -> "IFTORGACHA"
-                            Phase.AFTER_IFTOR -> "SAHARLIKGACHA"
-                        },
+                        text = countdownLabel,
                         color = WhiteDim,
                         fontSize = 11.sp,
                         letterSpacing = 4.sp,
@@ -219,11 +220,11 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
 
                     CountdownDisplay(
                         millis = countdown,
+                        isElapsed = isWithinSaharWindow || isWithinIftorWindow
                     )
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Progress arc + bar
                     ProgressSection(progress = progress, phase = phase)
 
                     Spacer(Modifier.height(20.dp))
@@ -232,13 +233,13 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        val saharEnd = saharDt.plusHours(1)
+
 
                         TimeCard(
                             icon = "☀️",
                             label = "SAHARLIK",
                             time = data.sahar.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            isActive = nowForDUO.isBefore(saharEnd), // sahar + 1h gacha active
+                            isActive = now.isBefore(saharDtPlus2h),
                             modifier = Modifier.weight(1f)
                         )
 
@@ -246,13 +247,13 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
                             icon = "\uD83C\uDF19",
                             label = "IFTOR",
                             time = data.iftor.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            isActive = nowForDUO.isAfter(saharEnd) && nowForDUO.isBefore(iftorDt),
+                            isActive = now.isAfter(saharDtPlus2h) && now.isBefore(iftorDtPlus2h),
                             modifier = Modifier.weight(1f)
                         )
                     }
 
 
-                    // Demo notice
+
                     if (isDemo) {
                         Spacer(Modifier.height(12.dp))
                         DemoNotice()
@@ -282,7 +283,6 @@ fun RamazonScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            // Jadvalni qo'shish
             item {
                 AnimatedVisibility(
                     visible = isTableExpanded,
@@ -344,7 +344,7 @@ private fun Header(kun: Int) {
             }
             .padding(horizontal = 20.dp, vertical = 18.dp),
     ) {
-        // Arabic title (center)
+
         Column(
             modifier = Modifier.align(Alignment.CenterStart),
         ) {
@@ -369,7 +369,7 @@ private fun Header(kun: Int) {
             )
         }
 
-        // Kun badge (top right)
+
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
@@ -398,7 +398,7 @@ private fun Header(kun: Int) {
 }
 
 @Composable
-private fun CountdownDisplay(millis: Long) {
+private fun CountdownDisplay(millis: Long, isElapsed: Boolean = false) {
 
     val (h, m, s) = millis.coerceAtLeast(0).toHms()
 
@@ -417,6 +417,15 @@ private fun CountdownDisplay(millis: Long) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
+        if (isElapsed) {
+            Text(
+                text = "+",
+                color = GoldPrimary.copy(alpha = 0.7f),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(end = 2.dp)
+            )
+        }
         TimeUnit(value = h, glowAlpha = glowAlpha)
         TimeSep()
         TimeUnit(value = m, glowAlpha = glowAlpha)
@@ -462,7 +471,7 @@ private fun ProgressSection(progress: Float, phase: Phase) {
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Percentage
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -486,7 +495,7 @@ private fun ProgressSection(progress: Float, phase: Phase) {
 
         Spacer(Modifier.height(6.dp))
 
-        // Progress bar
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -597,7 +606,7 @@ private fun DuoCard(type: DuoType, modifier: Modifier = Modifier) {
             .padding(16.dp)
     ) {
         Column {
-            // Badge row
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -611,7 +620,7 @@ private fun DuoCard(type: DuoType, modifier: Modifier = Modifier) {
                 )
             }
 
-            // Arabic text
+
             Text(
                 text = arabic,
                 color = Color.White.copy(0.9f),
@@ -626,7 +635,7 @@ private fun DuoCard(type: DuoType, modifier: Modifier = Modifier) {
 
             Spacer(Modifier.height(8.dp))
 
-            // Uzbek translation
+
             Text(
                 text = uzbek,
                 color = GoldPrimary.copy(0.75f),

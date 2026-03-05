@@ -10,7 +10,6 @@ import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
 
-// ── Data ────────────────────────────────────────────────────────────
 data class RamazonKun(
     val kun: Int,
     val sana: LocalDate,
