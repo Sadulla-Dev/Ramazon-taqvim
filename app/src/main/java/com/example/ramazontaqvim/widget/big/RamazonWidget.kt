@@ -20,9 +20,9 @@ import com.example.ramazontaqvim.ui.theme.GoldPrimary
 import com.example.ramazontaqvim.ui.theme.NightDeep
 import com.example.ramazontaqvim.ui.theme.WhiteDim
 import com.example.ramazontaqvim.ui.theme.WhiteFaded
-import com.example.ramazontaqvim.widget.RamazonPhase
-import com.example.ramazontaqvim.widget.WidgetState
-import com.example.ramazontaqvim.widget.calculateWidgetState
+import com.example.ramazontaqvim.data.RamazonPhase
+import com.example.ramazontaqvim.data.WidgetState
+import com.example.ramazontaqvim.data.calculateWidgetState
 
 class RamazonWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = RamazonGlanceWidget()

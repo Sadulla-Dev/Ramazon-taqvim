@@ -1,4 +1,4 @@
-package com.example.ramazontaqvim.widget
+package com.example.ramazontaqvim.data
 
 
 import android.os.Build
@@ -21,6 +21,9 @@ data class RamazonKun(
         get() = sana.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("uz", "UZ"))
 }
 
+
+enum class Phase { SAHAR_WAIT, ROZA, AFTER_IFTOR }
+enum class DuoType { SAHAR, IFTOR }
 @RequiresApi(Build.VERSION_CODES.O)
 val RAMAZON_2026 = listOf(
     RamazonKun(1,  LocalDate.of(2026,2,19),  LocalTime.of(5,54), LocalTime.of(18,5)),
@@ -55,12 +58,11 @@ val RAMAZON_2026 = listOf(
     RamazonKun(30, LocalDate.of(2026,3,20),  LocalTime.of(5,8),  LocalTime.of(18,39)),
 )
 
-// ── Widget State ─────────────────────────────────────────────────────
 enum class RamazonPhase {
-    SAHAR_WAIT,   // sahargacha
-    SAHAR_DONE,   // sahar bo‘ldi, ro'za boshlandi
-    ROZA,         // iftorgacha
-    IFTOR_DONE    // iftor bo‘ldi, keyingi sahargacha
+    SAHAR_WAIT,
+    SAHAR_DONE,
+    ROZA,
+    IFTOR_DONE
 }
 data class WidgetState(
     val kun: Int,
@@ -74,7 +76,6 @@ data class WidgetState(
     val isRamazon: Boolean
 )
 
-// ── State Calculator ─────────────────────────────────────────────────
 @RequiresApi(Build.VERSION_CODES.O)
 fun calculateWidgetState(now: LocalDateTime = LocalDateTime.now()): WidgetState {
 

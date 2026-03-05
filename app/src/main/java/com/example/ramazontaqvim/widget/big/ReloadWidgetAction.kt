@@ -11,7 +11,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import com.example.ramazontaqvim.widget.calculateWidgetState
+import com.example.ramazontaqvim.data.calculateWidgetState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

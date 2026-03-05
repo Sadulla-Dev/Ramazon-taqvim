@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ramazontaqvim.ui.theme.GoldAlpha12
-import com.example.ramazontaqvim.widget.RAMAZON_2026
+import com.example.ramazontaqvim.data.RAMAZON_2026
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

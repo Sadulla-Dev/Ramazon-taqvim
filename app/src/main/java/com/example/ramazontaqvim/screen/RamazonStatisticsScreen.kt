@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ramazontaqvim.data.RAMAZON_2026
 import com.example.ramazontaqvim.ui.theme.GoldAlpha12
 import com.example.ramazontaqvim.ui.theme.GoldAlpha30
 import com.example.ramazontaqvim.ui.theme.GoldDim
@@ -47,7 +48,7 @@ import com.example.ramazontaqvim.ui.theme.GoldPrimary
 import com.example.ramazontaqvim.ui.theme.NightDeep
 import com.example.ramazontaqvim.ui.theme.NightMid
 import com.example.ramazontaqvim.ui.theme.WhiteDim
-import com.example.ramazontaqvim.widget.RAMAZON_2026
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
@@ -58,7 +59,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
     val today = LocalDate.now()
     val now = LocalDateTime.now()
 
-    // Total ramazon kunlari
     val totalDays = RAMAZON_2026.size
     val passedDays = RAMAZON_2026.count { it.sana.isBefore(today) }
     val todayData = RAMAZON_2026.find { it.sana == today }
@@ -70,7 +70,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
     val remainingDays = (totalDays - completedDays).coerceAtLeast(0)
     val ramazonProgress = completedDays.toFloat() / totalDays.toFloat()
 
-    // Bugungi ro'za foizi
     val todayProgress = if (todayData != null) {
         val saharDt = LocalDateTime.of(today, todayData.sahar)
         val iftorDt = LocalDateTime.of(today, todayData.iftor)
@@ -85,15 +84,13 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
         }
     } else 0f
 
-    // O'rtacha roza davomiyligi (soatda)
     val avgFastHours = RAMAZON_2026.map { d ->
-        java.time.Duration.between(
+        Duration.between(
             LocalDateTime.of(d.sana, d.sahar),
             LocalDateTime.of(d.sana, d.iftor)
         ).toMinutes() / 60.0
     }.average()
 
-    // Bugungi roza davomiyligi
     val todayFastHours = todayData?.let {
         java.time.Duration.between(
             LocalDateTime.of(it.sana, it.sahar),
@@ -101,25 +98,23 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
         ).toMinutes() / 60.0
     } ?: avgFastHours
 
-    // Eng uzun va eng qisqa roza
     val maxFast = RAMAZON_2026.maxByOrNull { d ->
-        java.time.Duration.between(
+        Duration.between(
             LocalDateTime.of(d.sana, d.sahar),
             LocalDateTime.of(d.sana, d.iftor)
         ).toMinutes()
     }
     val minFast = RAMAZON_2026.minByOrNull { d ->
-        java.time.Duration.between(
+        Duration.between(
             LocalDateTime.of(d.sana, d.sahar),
             LocalDateTime.of(d.sana, d.iftor)
         ).toMinutes()
     }
 
-    // Qolgan umumiy roza soatlari
     val totalFastMinutesLeft = RAMAZON_2026
         .filter { it.sana.isAfter(today) }
         .sumOf { d ->
-            java.time.Duration.between(
+            Duration.between(
                 LocalDateTime.of(d.sana, d.sahar),
                 LocalDateTime.of(d.sana, d.iftor)
             ).toMinutes()
@@ -149,7 +144,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header
             StatHeader()
 
             Column(
@@ -159,7 +153,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
 
-                // ── Ramazon umumiy jarayoni ──
                 SectionTitle("📊 Ramazon Jarayoni")
 
                 BigProgressCard(
@@ -170,7 +163,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
                     accentColor = GoldPrimary
                 )
 
-                // ── Bugungi ro'za ──
                 SectionTitle("🌙 Bugungi Ro'za")
 
                 BigProgressCard(
@@ -183,7 +175,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
                     accentColor = Color(0xFF4FC3F7)
                 )
 
-                // ── 4 ta mini stat karta ──
                 SectionTitle("⏱ Statistika")
 
                 Row(
@@ -222,7 +213,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
                     )
                 }
 
-                // ── Eng uzun / Eng qisqa ──
                 SectionTitle("📈 Rekordlar")
 
                 Row(
@@ -264,7 +254,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
 
                 TotalHoursCard(hours = totalFastHoursLeft)
 
-                // ── Kunlik bar chart (oxirgi 7 kun) ──
 //                SectionTitle("📅 So'nggi 7 Kunlik Ro'za")
 
 //                WeeklyBarChart(today = today)
@@ -275,7 +264,6 @@ fun RamazonStatisticsScreen(modifier: Modifier = Modifier) {
     }
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
 
 @Composable
 private fun StatHeader() {
@@ -389,7 +377,6 @@ private fun BigProgressCard(
 
             Spacer(Modifier.height(12.dp))
 
-            // Progress bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -408,7 +395,6 @@ private fun BigProgressCard(
                             )
                         )
                 )
-                // Glow dot at end
                 if (animProgress > 0.02f) {
                     Box(
                         modifier = Modifier
@@ -442,7 +428,10 @@ private fun MiniStatCard(
             .border(1.dp, GoldAlpha12, RoundedCornerShape(14.dp))
             .padding(12.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(icon, fontSize = 22.sp)
             Spacer(Modifier.height(6.dp))
             Text(
@@ -478,7 +467,10 @@ private fun RecordCard(
             .border(1.dp, color.copy(0.3f), RoundedCornerShape(14.dp))
             .padding(12.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(icon, fontSize = 22.sp)
             Spacer(Modifier.height(4.dp))
             Text(
@@ -552,7 +544,6 @@ private fun TotalHoursCard(hours: Long) {
 private fun WeeklyBarChart(today: LocalDate) {
     val last7 = (6 downTo 0).map { today.minusDays(it.toLong()) }
 
-    // Max fast duration for normalization
     val durations = last7.map { date ->
         val d = RAMAZON_2026.find { it.sana == date }
         if (d != null) {
@@ -594,7 +585,6 @@ private fun WeeklyBarChart(today: LocalDate) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
-                // Hour label on top
                 if (hasData && durations[i] > 0f) {
                     Text(
                         text = "%.0fh".format(durations[i] / 60f),
@@ -608,14 +598,12 @@ private fun WeeklyBarChart(today: LocalDate) {
 
                 Spacer(Modifier.height(4.dp))
 
-                // Bar
                 Box(
                     modifier = Modifier
                         .width(22.dp)
                         .height(80.dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    // Background bar
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -623,7 +611,6 @@ private fun WeeklyBarChart(today: LocalDate) {
                             .clip(RoundedCornerShape(6.dp))
                             .background(Color.White.copy(0.05f))
                     )
-                    // Filled bar
                     if (animFraction > 0f) {
                         Box(
                             modifier = Modifier
@@ -640,7 +627,6 @@ private fun WeeklyBarChart(today: LocalDate) {
                                 )
                         )
                     }
-                    // Today indicator
                     if (isToday) {
                         Box(
                             modifier = Modifier
